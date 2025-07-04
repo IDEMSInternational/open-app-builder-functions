@@ -3,6 +3,19 @@ import { expect, jest, test } from "@jest/globals";
 import firebaseFunctionsTest from "firebase-functions-test";
 import { logstore } from "./shared-data-update";
 
+const MOCK_FIRESTORE_STATE = {
+  shared_data: {
+    mock_group_id: {
+      _created_at: new Date("2025-07-04"),
+      _updated_at: new Date("2025-07-04"),
+      admins: ["mock_user_id_1"],
+      data: { label: "mock label" },
+      id: "mock_group_id",
+      members: ["mock_user_id_1", "mock_user_id_2"],
+    },
+  },
+};
+
 const { wrap } = firebaseFunctionsTest();
 
 test("logstore", () => {
