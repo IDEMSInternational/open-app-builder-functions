@@ -1,4 +1,3 @@
-
 import functionsTest from "firebase-functions-test";
 import * as admin from "firebase-admin";
 import { exampleHttpFunction } from "./example-http-function";
@@ -49,8 +48,8 @@ describe("exampleHttpFunction", () => {
     });
   });
 
-  it('should handle POST request with no message', () => {
-    const req = { method: 'POST', body: {} };
+  it("should handle POST request with no message", () => {
+    const req = { method: "POST", body: {} };
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -60,7 +59,7 @@ describe("exampleHttpFunction", () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'Request received successfully!',
+      message: "Request received successfully!",
       receivedData: {},
     });
   });
