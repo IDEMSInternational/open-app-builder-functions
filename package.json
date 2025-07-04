@@ -9,7 +9,7 @@
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "emulators:start": "dotenv -e .env -- firebase emulators:start --only functions,firestore",
+    "emulators:start": "dotenv -- cross-var firebase emulators:start --only functions,firestore --project $PROJECT_ID",
     "shell": "npm run build && firebase functions:shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
