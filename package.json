@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test --workspace=functions"
+    "build": "npm run build --workspace=functions",
+    "test": "npm run test --workspace=functions",
+    "start": "npm run serve --workspace=functions"
   },
   "author": "IDEMS International",
   "license": "SEE LICENSE IN LICENSE",
