@@ -4,12 +4,12 @@
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
     "noImplicitReturns": true,
-    "outDir": "functions/lib",
+    "outDir": "lib",
     "sourceMap": true,
     "strict": true,
     "target": "es2017"
   },
   "compileOnSave": true,
   "types": ["node", "jest"],
-  "include": ["functions/src/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }
