@@ -6,6 +6,12 @@ See example functions in [./functions](./functions/)
 
 ## QuickStart
 
+Setup Environment Variables
+
+```
+cp .env.example .env
+```
+
 ### Run Locally
 
 ### Deploy To Production
