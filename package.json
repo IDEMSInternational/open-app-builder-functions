@@ -1,0 +1,11 @@
+{
+  "name": "open-app-builder-functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "IDEMS International",
+  "license": "SEE LICENSE IN LICENSE",
+  "description": ""
+}
