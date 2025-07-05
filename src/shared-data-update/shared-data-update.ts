@@ -14,7 +14,7 @@ if (admin.apps.length === 0) {
  * @param {functions.https.Request} request - The HTTP request object.
  * @param {functions.Response} response - The HTTP response object.
  */
-export const exampleHttpFunction = functions.https.onRequest(
+export const sharedDataUpdate = functions.https.onRequest(
   (request, response) => {
     if (request.method !== "POST") {
       response.status(405).send("Method Not Allowed");
@@ -23,11 +23,9 @@ export const exampleHttpFunction = functions.https.onRequest(
 
     try {
       const { success, data, error } = validateParams(request);
-
+      functions.logger.error("Param validation error:", error);
       if (error) {
-        response.status(400).json({
-          error: error.format(),
-        });
+        response.status(400).json(error.format());
         return;
       }
 

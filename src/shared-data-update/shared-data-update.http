@@ -1,8 +1,8 @@
-POST http://127.0.0.1:5001/test/us-central1/exampleHttpFunction
+POST http://127.0.0.1:5001/test/us-central1/sharedDataUpdate
 Content-Type: application/json
 
 {
   "parent_group_id": "test",
   "parent_name": "secret",
-  "parent_text_id":"",
+  "parent_text_id":""
 }

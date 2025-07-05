@@ -1,6 +1,6 @@
 import functionsTest from "firebase-functions-test";
 import * as admin from "firebase-admin";
-import { exampleHttpFunction } from "./shared-data-update";
+import { sharedDataUpdate } from "./shared-data-update";
 
 // Initialize the test environment
 const test = functionsTest();
@@ -11,7 +11,7 @@ jest.mock("firebase-admin", () => ({
   apps: [],
 }));
 
-describe("exampleHttpFunction", () => {
+describe("sharedDataUpdate", () => {
   afterEach(() => {
     test.cleanup();
   });
@@ -23,7 +23,7 @@ describe("exampleHttpFunction", () => {
       send: jest.fn(),
     };
 
-    exampleHttpFunction(req as any, res as any);
+    sharedDataUpdate(req as any, res as any);
 
     expect(res.status).toHaveBeenCalledWith(405);
     expect(res.send).toHaveBeenCalledWith("Method Not Allowed");
@@ -39,7 +39,7 @@ describe("exampleHttpFunction", () => {
       json: jest.fn(),
     };
 
-    exampleHttpFunction(req as any, res as any);
+    sharedDataUpdate(req as any, res as any);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
@@ -55,7 +55,7 @@ describe("exampleHttpFunction", () => {
       json: jest.fn(),
     };
 
-    exampleHttpFunction(req as any, res as any);
+    sharedDataUpdate(req as any, res as any);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
