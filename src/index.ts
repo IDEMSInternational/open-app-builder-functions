@@ -25,4 +25,4 @@ setGlobalOptions({ maxInstances: 10 });
 //   response.send("Hello from Firebase!");
 // });
 
-export * from "./example-http-function/example-http-function";
+export * from "./shared-data-update/shared-data-update";
