@@ -30,8 +30,6 @@
     "@types/jest": "^27.5.2",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
-    "cross-var": "^1.1.0",
-    "dotenv-cli": "^8.0.0",
     "eslint": "^8.9.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.25.4",
