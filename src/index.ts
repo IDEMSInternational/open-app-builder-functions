@@ -18,11 +18,7 @@ import { setGlobalOptions } from "firebase-functions";
 // per-function limit. You can override the limit for each function using the
 // `maxInstances` option in the function's options, e.g.
 // `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({ maxInstances: 1 });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-
+// Exposed functions
 export * from "./shared-data-update/shared-data-update";

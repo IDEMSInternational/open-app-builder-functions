@@ -16,31 +16,42 @@ if (admin.apps.length === 0) {
  */
 export const sharedDataUpdate = functions.https.onRequest(
   (request, response) => {
+    // Bearer token check
+    const { SHARED_DATA_UPDATE_TOKEN } = process.env;
+    const authHeader = request.get("Authorization") || "";
+    const expectedHeader = `Bearer ${SHARED_DATA_UPDATE_TOKEN}`;
+    if (authHeader !== expectedHeader) {
+      response.status(401).send("Unauthorized");
+      return;
+    }
+
     if (request.method !== "POST") {
       response.status(405).send("Method Not Allowed");
       return;
     }
 
     try {
-      const { success, data, error } = validateParams(request);
-      functions.logger.error("Param validation error:", error);
+      const { data, error } = validateParams(request);
+
       if (error) {
+        functions.logger.error("Param validation error:", error);
         response.status(400).json(error.format());
         return;
       }
+      if (data) {
+        const { parent_group_id, parent_name, parent_text_id } = data;
 
-      // functions.logger.info(`Received message: ${message}`, {
-      //   structuredData: true,
-      // });
-
-      // Send a response
-      response.status(200).json({
-        message: "Request received successfully!",
-        receivedData: data,
-      });
+        // Send a response
+        response.status(200).json({
+          message: "Request received successfully!",
+          receivedData: data,
+        });
+        return;
+      }
     } catch (error) {
-      functions.logger.error("Error in exampleHttpFunction:", error);
+      functions.logger.error(error);
       response.status(500).send("Internal Server Error");
+      return;
     }
   }
 );
