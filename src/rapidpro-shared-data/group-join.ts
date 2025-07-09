@@ -58,8 +58,12 @@ export type IFirestoreParentGroup = {
 /** Store reference to rapidpro parent within parentGroup data **/
 async function addParentToGroup(params: IGroupJoinRequestParams) {
   const { access_code, rapidpro_fields, rapidpro_uuid } = params;
-  const collectionRef = admin.firestore().collection("shared_data");
-  const { size, docs } = await collectionRef.where({ access_code }).get();
+
+  const ref = admin.firestore().collection("shared_data");
+  const { size, docs } = await ref
+    .where("access_code", "==", access_code)
+    .get();
+
   // Check group exists
   if (size === 0) {
     return { status: 400, msg: "User group not found" };
@@ -70,7 +74,7 @@ async function addParentToGroup(params: IGroupJoinRequestParams) {
   }
   // Check group is parentGroup
   const [groupDoc] = docs;
-  const data = groupDoc.data() as IFirestoreParentGroup;
+  const data = groupDoc.data().data as IFirestoreParentGroup;
   if (!data.parentGroupData || !data.parentGroupData.parents) {
     const msg = "Group is not setup correctly, cannot proceed";
     return { status: 400, msg };

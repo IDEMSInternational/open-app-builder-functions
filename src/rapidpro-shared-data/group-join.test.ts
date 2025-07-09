@@ -36,7 +36,7 @@ function createMockReqRes(requestOverrides: Partial<httpMocks.RequestOptions>) {
   return { req, res };
 }
 
-describe("sharedDataUpdate HTTP Validation", () => {
+describe("groupJoin HTTP Validation", () => {
   afterEach(() => {
     test.cleanup();
     jest.clearAllMocks();
@@ -75,9 +75,9 @@ describe("sharedDataUpdate HTTP Validation", () => {
     expect(res.statusCode).toEqual(400);
     expect(res._getJSONData()).toEqual({
       _errors: [],
-      parent_group_id: { _errors: ["Required"] },
-      parent_name: { _errors: ["Required"] },
-      parent_text_id: { _errors: ["Required"] },
+      access_code: { _errors: ["Required"] },
+      rapidpro_uuid: { _errors: ["Required"] },
+      rapidpro_fields: { _errors: ["Required"] },
     });
   });
 });
@@ -85,12 +85,16 @@ describe("sharedDataUpdate HTTP Validation", () => {
 const MOCK_FIRESTORE_STATE = {
   shared_data: {
     mock_group_id: {
-      _created_at: new Date("2025-07-04"),
-      _updated_at: new Date("2025-07-04"),
-      admins: ["mock_user_id_1"],
-      data: { label: "mock label" },
-      id: "mock_group_id",
-      members: ["mock_user_id_1", "mock_user_id_2"],
+      data: {
+        parentGroupData: {
+          parents: [
+            {
+              rapidpro_uuid: "1660b262-95a0-480a-99ef-9abf67773bc8",
+              rapidpro_fields: { name: "Bob" },
+            },
+          ],
+        },
+      },
       access_code: "C4F2",
     },
   },
@@ -107,29 +111,40 @@ describe("groupJoin Firestore", () => {
     expect(snapshot.exists).toEqual(true);
   });
 
-  it("should return 404 if parent group not found", async () => {
-    // TODO
+  it("should return 201 if member added", async () => {
+    const body: IGroupJoinRequestParams = {
+      access_code: "C4F2",
+      rapidpro_uuid: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
+      rapidpro_fields: { name: "Cynthia" },
+    };
+    const { req, res } = createMockReqRes({ body });
+    await groupJoin(req, res);
+    expect(res.statusCode).toEqual(201);
+    expect(res._getData()).toEqual("User added to group");
   });
 
-  it("should return 200 if member added", async () => {
-    const validBody: IGroupJoinRequestParams = {
+  it("should return 200 if member already exists", async () => {
+    const body: IGroupJoinRequestParams = {
       access_code: "C4F2",
-      rapidpro_uuid: "abcd-123-efg",
-      rapidpro_fields: { name: "Bob" },
+      rapidpro_uuid: "1660b262-95a0-480a-99ef-9abf67773bc8",
+      rapidpro_fields: { name: "Bob Updated" },
     };
-    // TODO - verify expected behaviour...
-
-    const { req, res } = createMockReqRes({ body: validBody });
+    const { req, res } = createMockReqRes({ body });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(200);
-    expect(res._getJSONData()).toEqual({
-      message: "Request received successfully!",
-      receivedData: validBody,
-    });
+    expect(res._getData()).toEqual("User already a member of group");
   });
 
-  it("should return 201 if member updated", async () => {
-    // TODO
+  it("should return 400 if parent group not found", async () => {
+    const body: IGroupJoinRequestParams = {
+      access_code: "BAD1",
+      rapidpro_uuid: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
+      rapidpro_fields: { name: "Cynthia" },
+    };
+    const { req, res } = createMockReqRes({ body });
+    await groupJoin(req, res);
+    expect(res.statusCode).toEqual(400);
+    expect(res._getData()).toEqual("User group not found");
   });
   //
 });
