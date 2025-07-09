@@ -6,10 +6,7 @@ import {
   getFirestoreEmulator,
   seedFirestore,
 } from "../../test/firestoreTestUtils";
-import {
-  ISharedDataRequestParams,
-  sharedDataUpdate,
-} from "./shared-data-update";
+import { IGroupJoinRequestParams, groupJoin } from "./group-join";
 
 // Set the token for tests
 const TEST_TOKEN = "test-secret-token";
@@ -49,7 +46,7 @@ describe("sharedDataUpdate HTTP Validation", () => {
     const { req, res } = createMockReqRes({
       headers: { authorization: undefined },
     });
-    await sharedDataUpdate(req, res);
+    await groupJoin(req, res);
     expect(res.statusCode).toEqual(401);
     expect(res._getData()).toEqual("Unauthorized");
   });
@@ -58,14 +55,14 @@ describe("sharedDataUpdate HTTP Validation", () => {
     const { req, res } = createMockReqRes({
       headers: { authorization: "Bearer wrong-token" },
     });
-    await sharedDataUpdate(req, res);
+    await groupJoin(req, res);
     expect(res.statusCode).toEqual(401);
     expect(res._getData()).toEqual("Unauthorized");
   });
 
   it("should return 405 if method is not POST", async () => {
     const { req, res } = createMockReqRes({ method: "GET" });
-    await sharedDataUpdate(req, res);
+    await groupJoin(req, res);
     expect(res.statusCode).toEqual(405);
     expect(res._getData()).toEqual("Method Not Allowed");
   });
@@ -74,7 +71,7 @@ describe("sharedDataUpdate HTTP Validation", () => {
     const { req, res } = createMockReqRes({
       body: { foo: "bar" },
     });
-    await sharedDataUpdate(req, res);
+    await groupJoin(req, res);
     expect(res.statusCode).toEqual(400);
     expect(res._getJSONData()).toEqual({
       _errors: [],
@@ -94,11 +91,12 @@ const MOCK_FIRESTORE_STATE = {
       data: { label: "mock label" },
       id: "mock_group_id",
       members: ["mock_user_id_1", "mock_user_id_2"],
+      access_code: "C4F2",
     },
   },
 };
 
-describe("sharedDataUpdate Firestore", () => {
+describe("groupJoin Firestore", () => {
   beforeEach(async () => {
     await clearFirestore();
     await seedFirestore(MOCK_FIRESTORE_STATE);
@@ -114,15 +112,15 @@ describe("sharedDataUpdate Firestore", () => {
   });
 
   it("should return 200 if member added", async () => {
-    const validBody: ISharedDataRequestParams = {
-      parent_group_id: "123e4567-e89b-12d3-a456-426614174000",
-      parent_name: "Test Group",
-      parent_text_id: "test_text_id",
+    const validBody: IGroupJoinRequestParams = {
+      access_code: "C4F2",
+      rapidpro_uuid: "abcd-123-efg",
+      rapidpro_fields: { name: "Bob" },
     };
     // TODO - verify expected behaviour...
 
     const { req, res } = createMockReqRes({ body: validBody });
-    await sharedDataUpdate(req, res);
+    await groupJoin(req, res);
     expect(res.statusCode).toEqual(200);
     expect(res._getJSONData()).toEqual({
       message: "Request received successfully!",

@@ -1,7 +1,7 @@
 # VSCode Rest Client extension will display `Send Request` button below to
 # perform integration test when running emulators locally
 
-POST http://127.0.0.1:5001/test/us-central1/sharedDataUpdate
+POST http://127.0.0.1:5001/test/us-central1/groupJoin
 Content-Type: application/json
 
 {
