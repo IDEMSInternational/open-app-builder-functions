@@ -8,14 +8,18 @@ if (admin.apps.length === 0) {
   admin.initializeApp();
 }
 
-/**
- * A simple HTTP-triggered Firebase Function.
- *
- * @param {functions.https.Request} request - The HTTP request object.
- * @param {functions.Response} response - The HTTP response object.
- */
+/** Request param schema and validation */
+const PARAMS_SCHEMA = z.object({
+  parent_group_id: z.string().uuid(),
+  parent_name: z.string(),
+  parent_text_id: z.string(),
+});
+
+// Generated type from schema validation above
+export type ISharedDataRequestParams = z.infer<typeof PARAMS_SCHEMA>;
+
 export const sharedDataUpdate = functions.https.onRequest(
-  (request, response) => {
+  async (request, response) => {
     // Bearer token check
     const { SHARED_DATA_UPDATE_TOKEN } = process.env;
     const authHeader = request.get("Authorization") || "";
@@ -31,7 +35,7 @@ export const sharedDataUpdate = functions.https.onRequest(
     }
 
     try {
-      const { data, error } = validateParams(request);
+      const { data, error } = PARAMS_SCHEMA.safeParse(request.body);
 
       if (error) {
         functions.logger.error("Param validation error:", error);
@@ -39,13 +43,10 @@ export const sharedDataUpdate = functions.https.onRequest(
         return;
       }
       if (data) {
-        const { parent_group_id, parent_name, parent_text_id } = data;
+        const { status, msg } = await addParentToGroup(data);
 
         // Send a response
-        response.status(200).json({
-          message: "Request received successfully!",
-          receivedData: data,
-        });
+        response.status(status).send(msg);
         return;
       }
     } catch (error) {
@@ -56,14 +57,13 @@ export const sharedDataUpdate = functions.https.onRequest(
   }
 );
 
-function validateParams(req: functions.https.Request) {
-  // Define your schema
-  const schema = z.object({
-    parent_group_id: z.string().uuid(),
-    parent_name: z.string(),
-    parent_text_id: z.string(),
-  });
-
-  const result = schema.safeParse(req.body);
-  return result;
+async function addParentToGroup(params: ISharedDataRequestParams) {
+  const { parent_group_id, parent_name, parent_text_id } = params;
+  const docRef = admin.firestore().doc(`shared_data/${parent_group_id}`);
+  const { exists, data } = await docRef.get();
+  console.log("exists", exists);
+  if (exists) {
+    return { status: 200, msg: "User updated successfully" };
+  }
+  return { status: 400, msg: "User group not found" };
 }

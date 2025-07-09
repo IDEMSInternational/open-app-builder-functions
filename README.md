@@ -4,6 +4,10 @@ Deployable functions to support specific open-app-builder deployment functionali
 
 See example functions in [./functions](./functions/)
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
+
 ## QuickStart
 
 Setup Environment Variables
