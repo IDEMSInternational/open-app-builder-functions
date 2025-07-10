@@ -32,7 +32,7 @@ An interactive console will be available to view resource at http://127.0.0.1:40
 Use any REST Client to send request to running endpoint, e.g.
 
 ```sh
-POST http://127.0.0.1:5001/test/us-central1/myFunctionName
+POST http://127.0.0.1:5001/test/us-central1/groupJoin
 ```
 
 Alternatively put the request in a file with name ending `.http` and use [VSCode Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension to call directly via the `send request` button that will appear in the file
