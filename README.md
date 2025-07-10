@@ -6,7 +6,9 @@ See example functions in [./functions](./functions/)
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 22 recommended to match deployment)
+- [Node.js](https://nodejs.org/) (version 22 recommended to match firebase deployment)
+
+it is recommended to use a node version manager such as [nvm](https://github.com/nvm-sh/nvm), [fnm](https://github.com/Schniz/fnm) to handle switching between different node versions
 
 ## QuickStart
 
@@ -37,6 +39,10 @@ Alternatively put the request in a file with name ending `.http` and use [VSCode
 
 ## Deploy To Production
 
+**Review Environment Variables**
+Ensure all production environment variables are set as expected in `./env`
+
+**Link Firebase Project**
 Register a firebase project (should be created in advance using firebase console)
 
 ```sh
@@ -46,14 +52,13 @@ firebase use --add
 ```
 
 This will prompt for a project to use and alias to specify (if wanting to deploy to multiple projects)
-See all available projects in `.firebaserc`
-
-The active project can be set from
+See all available projects in `.firebaserc`. The active project can changed via:
 
 ```sh
 firebase use {alias}
 ```
 
+**Deploy**
 Functions can be deployed via
 
 ```sh
