@@ -1,7 +1,7 @@
 # Open App Builder Functions
 
-[Image: License](https://img.shields.io/github/license/IDEMSInternational/open-app-builder-functions)
-[Image: Node Version](https://img.shields.io/badge/node-22.x-brightgreen)
+![Image: License](https://img.shields.io/github/license/IDEMSInternational/open-app-builder-functions)
+![Image: Node Version](https://img.shields.io/badge/node-22.x-brightgreen)
 
 ## Overview
 
