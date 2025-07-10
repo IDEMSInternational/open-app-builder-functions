@@ -3,6 +3,7 @@
     ".eslintrc.js",
     "jest.env-setup.js",
     "jest.config.js",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "src/**/*.test.ts"
   ]
 }

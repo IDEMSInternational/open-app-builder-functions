@@ -3,6 +3,7 @@ import { clearFirestoreData } from "firebase-functions-test/lib/providers/firest
 
 // Represents a Firestore document, possibly with subcollections
 type FirestoreDoc = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [field: string]: any;
   __collections__?: FirestoreCollections;
 };
