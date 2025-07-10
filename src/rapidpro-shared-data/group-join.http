@@ -1,0 +1,12 @@
+# VSCode Rest Client extension will display `Send Request` button below to
+# perform integration test when running emulators locally
+
+POST http://127.0.0.1:5001/test/us-central1/groupJoin
+Content-Type: application/json
+Authorization: Bearer example_access_token_1234567890
+
+{
+  "access_code": "C4F2",
+  "rapidpro_uuid": "93311b81-bcf0-45d2-ab66-0a047b1bd2fc",
+  "rapidpro_fields":{"name":"Test User"}
+}

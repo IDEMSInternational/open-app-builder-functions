@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "noImplicitReturns": true,
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
+  },
+  "compileOnSave": true,
+  "types": ["node", "jest"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "test/**"]
+}
