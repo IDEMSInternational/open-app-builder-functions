@@ -2,7 +2,7 @@
 
 Deployable functions to support specific open-app-builder deployment functionality
 
-See example functions in [./functions](./functions/)
+See example functions in [./src](./src/)
 
 ## Prerequisites
 
@@ -14,8 +14,14 @@ it is recommended to use a node version manager such as [nvm](https://github.com
 
 Setup Environment Variables
 
-```
+```sh
 cp .env.example .env
+```
+
+Install dependencies
+
+```sh
+npm install
 ```
 
 ### Run Locally
@@ -29,13 +35,15 @@ This will start the firebase emulator suite to mimic production function endpoin
 An interactive console will be available to view resource at http://127.0.0.1:4000/
 
 **Send A Test Request**
-Use any REST Client to send request to running endpoint, e.g.
+Once running, a list of available function endpoints will appear in the console.
+Functions will be triggered by sending requests to the endpoint using REST client such as [Insomnia](https://insomnia.rest/) or command line.
 
-```sh
+```
 POST http://127.0.0.1:5001/test/us-central1/groupJoin
 ```
 
-Alternatively put the request in a file with name ending `.http` and use [VSCode Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension to call directly via the `send request` button that will appear in the file
+Alternatively, If using VSCode and the [VSCode Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension,
+requests can be defined in files ending `.http` and triggered via the interactive `send request` button that will appear in the file
 
 ## Deploy To Production
 
