@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
+import { timingSafeEqual } from "crypto";
+
 import { z } from "zod";
 
 // Ensure Firebase is initialized
@@ -27,9 +29,14 @@ export const groupJoin = functions.https.onRequest(
     }
     // Validate auth token
     const { SHARED_DATA_UPDATE_TOKEN } = process.env;
+    if (!SHARED_DATA_UPDATE_TOKEN) {
+      functions.logger.error("SHARED_DATA_UPDATE_TOKEN is not set");
+      response.status(500).send("Server misconfiguration");
+      return;
+    }
     const authHeader = request.get("Authorization") || "";
     const expectedHeader = `Bearer ${SHARED_DATA_UPDATE_TOKEN}`;
-    if (authHeader !== expectedHeader) {
+    if (!sensitiveStringIsEqual(authHeader, expectedHeader)) {
       response.status(401).send("Unauthorized");
       return;
     }
@@ -96,4 +103,18 @@ async function addParentToGroup(params: IGroupJoinRequestParams) {
     functions.logger.error(error);
     return { status: 500, msg: "Internal error occurred" };
   }
+}
+
+/**
+ * Compare strings within constant-time algorithm to avoid accidental timing information leak that could
+ * be used to guess sensitive values.
+ * Regular string comparison returns immediately on first character mismatch, allowing the time to resolve
+ * to be used as part of brute-force attacks (faster resolve indicating fewer correct characters)
+ */
+function sensitiveStringIsEqual(a: string, b: string) {
+  // Convert both to buffers
+  const aBuffer = Buffer.from(a, "utf8");
+  const bBuffer = Buffer.from(b, "utf8");
+  if (aBuffer.length !== bBuffer.length) return false;
+  return timingSafeEqual(aBuffer, bBuffer);
 }
