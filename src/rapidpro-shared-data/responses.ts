@@ -20,13 +20,12 @@ const ERROR_RESPONSES = {
     INTERNAL_ERROR: { status: 500, message: 'Internal Error' },
 }
 
-
-type ErrorResponseType = keyof typeof ERROR_RESPONSES
-
 const SUCCESS_RESPONSES = {
     USER_ADDED: { status: 201, message: 'User added to group' },
     USER_EXISTING: { status: 200, message: 'User already in group' }
 }
+
+type ErrorResponseType = keyof typeof ERROR_RESPONSES
 
 type SuccessResponseType = keyof typeof SUCCESS_RESPONSES
 
