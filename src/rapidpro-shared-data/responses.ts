@@ -32,7 +32,6 @@ type SuccessResponseType = keyof typeof SUCCESS_RESPONSES
 export function errorResponse(res: Response, type: ErrorResponseType, details?: any) {
     const { status, message } = ERROR_RESPONSES[type]
     const apiRes: ApiResponse = { success: false, message, error: { status, details } }
-    console.log('apiRes', apiRes)
     res.status(status).json(apiRes)
 }
 
