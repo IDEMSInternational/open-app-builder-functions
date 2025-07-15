@@ -106,7 +106,7 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
     })
   } catch (error) {
     functions.logger.error(error);
-    return errorResponse(response, 'INTERNAL_ERROR', error)
+    return errorResponse(response, 'INTERNAL_ERROR',)
   }
 }
 
