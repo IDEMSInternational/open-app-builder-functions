@@ -48,7 +48,11 @@ describe("groupJoin HTTP Validation", () => {
     });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(401);
-    expect(res._getJSONData()).toEqual({ error: "Unauthorized" });
+    expect(res._getJSONData()).toEqual({
+      success: false,
+      message: "Unauthorized",
+      error: { status: 401 }
+    });
   });
 
   it("should return 401 if Authorization header is incorrect", async () => {
@@ -57,14 +61,22 @@ describe("groupJoin HTTP Validation", () => {
     });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(401);
-    expect(res._getJSONData()).toEqual({ error: "Unauthorized" });
+    expect(res._getJSONData()).toEqual({
+      success: false,
+      message: "Unauthorized",
+      error: { status: 401 }
+    });
   });
 
   it("should return 405 if method is not POST", async () => {
     const { req, res } = createMockReqRes({ method: "GET" });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(405);
-    expect(res._getJSONData()).toEqual({ error: "Method Not Allowed" });
+    expect(res._getJSONData()).toEqual({
+      success: false,
+      message: "Method Not Allowed",
+      error: { status: 405 }
+    });
   });
 
   it("should return 422 if params are invalid", async () => {
@@ -73,17 +85,19 @@ describe("groupJoin HTTP Validation", () => {
     });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(422);
-    expect(res._getJSONData()).toEqual(
-      {
-        error: 'Invalid Params',
-        data: {
+    expect(res._getJSONData()).toEqual({
+      success: false,
+      message: "Invalid Params",
+      error: {
+        status: 422,
+        details: {
           _errors: [],
           access_code: { _errors: ["Required"] },
           rapidpro_uuid: { _errors: ["Required"] },
           rapidpro_fields: { _errors: ["Required"] },
-        },
-
-      });
+        }
+      }
+    });
   });
 });
 
@@ -110,6 +124,7 @@ describe("groupJoin Firestore", () => {
     await clearFirestore();
     await seedFirestore(MOCK_FIRESTORE_STATE);
   });
+
   it("seeds data for testing", async () => {
     const firestore = getFirestoreEmulator();
     const snapshot = await firestore.doc(`shared_data/mock_group_id`).get();
@@ -125,7 +140,15 @@ describe("groupJoin Firestore", () => {
     const { req, res } = createMockReqRes({ body });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(201);
-    expect(res._getJSONData()).toEqual({ data: "User added to group" });
+    expect(res._getJSONData()).toEqual({
+      success: true,
+      message: "User added to group",
+      data: {
+        groupId: 'mock_group_id',
+        userId: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
+        totalMembers: 2
+      }
+    });
   });
 
   it("should return 200 if member already exists", async () => {
@@ -137,10 +160,18 @@ describe("groupJoin Firestore", () => {
     const { req, res } = createMockReqRes({ body });
     await groupJoin(req, res);
     expect(res.statusCode).toEqual(200);
-    expect(res._getJSONData()).toEqual({ data: "User already a member of group" });
+    expect(res._getJSONData()).toEqual({
+      success: true,
+      message: "User already in group",
+      data: {
+        groupId: 'mock_group_id',
+        userId: "1660b262-95a0-480a-99ef-9abf67773bc8",
+        totalMembers: 1
+      }
+    });
   });
 
-  it.only("should return 422 if parent group not found", async () => {
+  it("should return 422 if parent group not found", async () => {
     const body: IGroupJoinRequestParams = {
       access_code: "BAD1",
       rapidpro_uuid: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
@@ -152,8 +183,10 @@ describe("groupJoin Firestore", () => {
     expect(res._getJSONData()).toEqual({
       success: false,
       message: 'Data Error',
-      error: { status: 422, details: 'User group not found' }
+      error: {
+        status: 422,
+        details: "User group not found"
+      }
     });
   });
-  //
 });

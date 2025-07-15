@@ -102,7 +102,7 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
     return successResponse(response, 'USER_ADDED', {
       userId: rapidpro_uuid,
       groupId: groupDoc.id,
-      totalMembers: parents.length + 1
+      totalMembers: parents.length
     })
   } catch (error) {
     functions.logger.error(error);
