@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        >
+        <style>
+        .failed {
+            color: red;
+         }
+         .passed {
+             color: green;
+         }
+        </style>
+    </head>
+    <body>
+        <main class="container">
+            <h1>Add parent to group</h1>
+            <form>
+                <label>
+                    Group code
+                    <input name="access_code" />
+                </label>
+                <label>
+                    RapidPro UUID
+                    <input name="rapidpro_uuid" />
+                </label>
+                <label>
+                    Parent name
+                    <input name="name" />
+                </label>
+                <label>
+                    Gender
+                    <input name="gender" />
+                </label>
+                <label>
+                    ParentText ID
+                    <input name="parenttext_parent_id" />
+                </label>
+                <label>
+                    Access token:
+                    <input name="access_token" />
+                </label>
+                <button type="button">Add parent</button>
+            </form>
+            <article id="result"></article>
+        </main>
+
+        <script type="text/javascript">
+        async function submit(event) {
+            event.preventDefault()
+            event.target.disabled = true;
+            const result = document.querySelector("#result");
+            result.innerHTML = '<span aria-busy="true">Adding parent...</span>';
+            const fd = new FormData(document.querySelector("form"));
+            const payload = JSON.stringify({
+                access_code: fd.get("access_code"),
+                rapidpro_uuid: fd.get("rapidpro_uuid"),
+                rapidpro_fields: {
+                    name: fd.get("name"),
+                    gender: fd.get("gender"),
+                    parenttext_parent_id: fd.get("parenttext_parent_id"),
+                }
+            });
+
+            try {
+                const response = await fetch(
+                    "https://groupjoin-exp4ohltma-uc.a.run.app/",
+                    {
+                        body: payload,
+                        headers: {
+                            "Authorization": "Bearer " + fd.get("access_token"),
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                    }
+                );
+
+                if (response.ok) {
+                    result.innerHTML = '<span class="passed">Parent added</span>';
+                }
+                else {
+                    const data = await response.json();
+                    result.innerHTML = `<span class="failed">Submission failed: ${data.error.details}</span>`;
+                }
+            } catch (e) {
+                result.innerHTML = `<span class="failed">Submission failed</span>`;
+            } finally {
+                event.target.disabled = false;
+            }
+        }
+
+        document.querySelector("button").addEventListener("click", submit);
+        </script>
+    </body>
+</html>
