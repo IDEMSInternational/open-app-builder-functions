@@ -24,11 +24,20 @@ export type IGroupJoinRequestParams = z.infer<typeof PARAMS_SCHEMA>;
 
 export const groupJoin = functions.https.onRequest(
   async (request, response) => {
-    // Validate request method
+    response.set("Access-Control-Allow-Origin", "*");
+
+    if (request.method === "OPTIONS") {
+        response.set("Access-Control-Allow-Methods", "POST");
+        response.set("Access-Control-Allow-Headers", "Authorization,Content-Type");
+        response.set("Access-Control-Max-Age", "3600");
+        response.status(204).send("");
+        response.end();
+    }
+
     if (request.method !== "POST") {
       return errorResponse(response, 'METHOD_NOT_ALLOWED')
-
     }
+
     // Validate auth token
     const { SHARED_DATA_UPDATE_TOKEN } = process.env;
     if (!SHARED_DATA_UPDATE_TOKEN) {
