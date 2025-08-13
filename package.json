@@ -19,6 +19,9 @@
   "engines": {
     "node": "22"
   },
+  "lint-staged": {
+    "*.{ts,js,json}": "prettier --write"
+  },
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "^12.6.0",
