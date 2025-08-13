@@ -11,6 +11,7 @@ module.exports = {
     "plugin:import/warnings",
     "plugin:import/typescript",
     "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -24,5 +25,11 @@ module.exports = {
   plugins: ["@typescript-eslint", "import"],
   rules: {
     "import/no-unresolved": 0,
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
+      },
+    ],
   },
 };
