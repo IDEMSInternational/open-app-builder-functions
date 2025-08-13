@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import type { Response } from 'express'
+import type { Response } from "express";
 
 import { timingSafeEqual } from "crypto";
 
@@ -22,44 +22,41 @@ const PARAMS_SCHEMA = z.object({
 // Generated type from schema validation above
 export type IGroupJoinRequestParams = z.infer<typeof PARAMS_SCHEMA>;
 
-export const groupJoin = functions.https.onRequest(
-  async (request, response) => {
-    response.set("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN || "");
+export const groupJoin = functions.https.onRequest(async (request, response) => {
+  response.set("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN || "");
 
-    if (request.method === "OPTIONS") {
-      response.set("Access-Control-Allow-Methods", "POST");
-      response.set("Access-Control-Allow-Headers", "Authorization,Content-Type");
-      response.set("Access-Control-Max-Age", "3600");
-      response.status(204).send("");
-      return;
-    }
-
-    if (request.method !== "POST") {
-      return errorResponse(response, 'METHOD_NOT_ALLOWED')
-    }
-
-    // Validate auth token
-    const { SHARED_DATA_UPDATE_TOKEN } = process.env;
-    if (!SHARED_DATA_UPDATE_TOKEN) {
-      functions.logger.error("SHARED_DATA_UPDATE_TOKEN is not set");
-      return errorResponse(response, 'SERVER_MISCONFIGURATION', 'No auth token on present');
-    }
-    const authHeader = request.get("Authorization") || "";
-    const expectedHeader = `Bearer ${SHARED_DATA_UPDATE_TOKEN}`;
-    if (!sensitiveStringIsEqual(authHeader, expectedHeader)) {
-      return errorResponse(response, 'UNAUTHORIZED');
-    }
-    // Validate params
-    const { data, error } = PARAMS_SCHEMA.safeParse(request.body);
-    if (error) {
-      functions.logger.error("Param validation error:", error);
-      return errorResponse(response, 'INVALID_PARAMS', error.format());
-    }
-    // Process request
-    return addParentToGroup(data, response);
-
+  if (request.method === "OPTIONS") {
+    response.set("Access-Control-Allow-Methods", "POST");
+    response.set("Access-Control-Allow-Headers", "Authorization,Content-Type");
+    response.set("Access-Control-Max-Age", "3600");
+    response.status(204).send("");
+    return;
   }
-);
+
+  if (request.method !== "POST") {
+    return errorResponse(response, "METHOD_NOT_ALLOWED");
+  }
+
+  // Validate auth token
+  const { SHARED_DATA_UPDATE_TOKEN } = process.env;
+  if (!SHARED_DATA_UPDATE_TOKEN) {
+    functions.logger.error("SHARED_DATA_UPDATE_TOKEN is not set");
+    return errorResponse(response, "SERVER_MISCONFIGURATION", "No auth token on present");
+  }
+  const authHeader = request.get("Authorization") || "";
+  const expectedHeader = `Bearer ${SHARED_DATA_UPDATE_TOKEN}`;
+  if (!sensitiveStringIsEqual(authHeader, expectedHeader)) {
+    return errorResponse(response, "UNAUTHORIZED");
+  }
+  // Validate params
+  const { data, error } = PARAMS_SCHEMA.safeParse(request.body);
+  if (error) {
+    functions.logger.error("Param validation error:", error);
+    return errorResponse(response, "INVALID_PARAMS", error.format());
+  }
+  // Process request
+  return addParentToGroup(data, response);
+});
 
 export type IFirestoreParentGroup = {
   parentGroupData?: {
@@ -72,50 +69,47 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
   const { access_code, rapidpro_fields, rapidpro_uuid } = params;
 
   const ref = admin.firestore().collection("shared_data");
-  const { size, docs } = await ref
-    .where("access_code", "==", access_code)
-    .get();
+  const { size, docs } = await ref.where("access_code", "==", access_code).get();
 
   // Check group exists
   if (size === 0) {
-    return errorResponse(response, 'DATA_ERROR', 'User group not found')
-
+    return errorResponse(response, "DATA_ERROR", "User group not found");
   }
   if (size > 1) {
     const msg = "Multiple groups with same access code, cannot proceed";
-    return errorResponse(response, 'DATA_ERROR', msg)
+    return errorResponse(response, "DATA_ERROR", msg);
   }
   // Check group is parentGroup
   const [groupDoc] = docs;
   const data = groupDoc.data().data as IFirestoreParentGroup;
   if (!data.parentGroupData || !data.parentGroupData.parents) {
     const msg = "Group is not setup correctly, cannot proceed";
-    return errorResponse(response, 'DATA_ERROR', msg)
+    return errorResponse(response, "DATA_ERROR", msg);
   }
   const parents = data.parentGroupData?.parents;
 
   // Return success if user already member
   const existingUser = parents.find((p) => p.rapidpro_uuid === rapidpro_uuid);
   if (existingUser) {
-    return successResponse(response, 'USER_EXISTING', {
+    return successResponse(response, "USER_EXISTING", {
       userId: rapidpro_uuid,
       groupId: groupDoc.id,
-      totalMembers: parents.length
-    })
+      totalMembers: parents.length,
+    });
   }
   // Add user to group and update
   parents.push({ rapidpro_uuid, rapidpro_fields });
   data.parentGroupData.parents = parents;
   try {
     await groupDoc.ref.update({ data });
-    return successResponse(response, 'USER_ADDED', {
+    return successResponse(response, "USER_ADDED", {
       userId: rapidpro_uuid,
       groupId: groupDoc.id,
-      totalMembers: parents.length
-    })
+      totalMembers: parents.length,
+    });
   } catch (error) {
     functions.logger.error(error);
-    return errorResponse(response, 'INTERNAL_ERROR',)
+    return errorResponse(response, "INTERNAL_ERROR");
   }
 }
 

@@ -31,10 +31,7 @@ export function getFirestoreEmulator() {
 }
 
 /** Seed Firestore with arbitrary mock data */
-export async function seedFirestore(
-  state: FirestoreSeedState,
-  parentPath: string[] = []
-) {
+export async function seedFirestore(state: FirestoreSeedState, parentPath: string[] = []) {
   const batch = admin.firestore().batch();
 
   // Helper to recursively add docs and subcollections
@@ -42,9 +39,7 @@ export async function seedFirestore(
     for (const [collectionName, collection] of Object.entries(collections)) {
       for (const [docId, doc] of Object.entries(collection)) {
         const { __collections__, ...fields } = doc;
-        const docRef = admin
-          .firestore()
-          .doc([...path, collectionName, docId].join("/"));
+        const docRef = admin.firestore().doc([...path, collectionName, docId].join("/"));
         batch.set(docRef, fields);
         if (__collections__) {
           addDocs(__collections__, [...path, collectionName, docId]);

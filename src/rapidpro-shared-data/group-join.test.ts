@@ -1,11 +1,7 @@
 import * as functions from "firebase-functions";
 import functionsTest from "firebase-functions-test";
 import httpMocks from "node-mocks-http";
-import {
-  clearFirestore,
-  getFirestoreEmulator,
-  seedFirestore,
-} from "../../test/firestoreTestUtils";
+import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../test/firestoreTestUtils";
 import { IGroupJoinRequestParams, groupJoin } from "./group-join";
 
 // Set the token for tests
@@ -51,7 +47,7 @@ describe("groupJoin HTTP Validation", () => {
     expect(res._getJSONData()).toEqual({
       success: false,
       message: "Unauthorized",
-      error: { status: 401 }
+      error: { status: 401 },
     });
   });
 
@@ -64,7 +60,7 @@ describe("groupJoin HTTP Validation", () => {
     expect(res._getJSONData()).toEqual({
       success: false,
       message: "Unauthorized",
-      error: { status: 401 }
+      error: { status: 401 },
     });
   });
 
@@ -75,7 +71,7 @@ describe("groupJoin HTTP Validation", () => {
     expect(res._getJSONData()).toEqual({
       success: false,
       message: "Method Not Allowed",
-      error: { status: 405 }
+      error: { status: 405 },
     });
   });
 
@@ -95,8 +91,8 @@ describe("groupJoin HTTP Validation", () => {
           access_code: { _errors: ["Required"] },
           rapidpro_uuid: { _errors: ["Required"] },
           rapidpro_fields: { _errors: ["Required"] },
-        }
-      }
+        },
+      },
     });
   });
 });
@@ -144,10 +140,10 @@ describe("groupJoin Firestore", () => {
       success: true,
       message: "User added to group",
       data: {
-        groupId: 'mock_group_id',
+        groupId: "mock_group_id",
         userId: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
-        totalMembers: 2
-      }
+        totalMembers: 2,
+      },
     });
   });
 
@@ -164,10 +160,10 @@ describe("groupJoin Firestore", () => {
       success: true,
       message: "User already in group",
       data: {
-        groupId: 'mock_group_id',
+        groupId: "mock_group_id",
         userId: "1660b262-95a0-480a-99ef-9abf67773bc8",
-        totalMembers: 1
-      }
+        totalMembers: 1,
+      },
     });
   });
 
@@ -182,11 +178,11 @@ describe("groupJoin Firestore", () => {
     expect(res.statusCode).toEqual(422);
     expect(res._getJSONData()).toEqual({
       success: false,
-      message: 'Data Error',
+      message: "Data Error",
       error: {
         status: 422,
-        details: "User group not found"
-      }
+        details: "User group not found",
+      },
     });
   });
 });
