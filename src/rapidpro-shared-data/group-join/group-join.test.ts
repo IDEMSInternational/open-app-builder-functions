@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import functionsTest from "firebase-functions-test";
 import httpMocks from "node-mocks-http";
-import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../test/firestoreTestUtils";
+import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../../test/firestoreTestUtils";
 import { IGroupJoinRequestParams, groupJoin } from "./group-join";
 
 // Set the token for tests
