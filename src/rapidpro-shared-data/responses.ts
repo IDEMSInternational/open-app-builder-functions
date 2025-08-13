@@ -4,10 +4,10 @@ import type { Response } from "express";
 interface ApiResponse {
   success: boolean;
   message: string;
-  data?: any;
+  data?: unknown;
   error?: {
     status?: number;
-    details?: any;
+    details?: unknown;
   };
 }
 
@@ -29,13 +29,13 @@ type ErrorResponseType = keyof typeof ERROR_RESPONSES;
 
 type SuccessResponseType = keyof typeof SUCCESS_RESPONSES;
 
-export function errorResponse(res: Response, type: ErrorResponseType, details?: any) {
+export function errorResponse(res: Response, type: ErrorResponseType, details?: unknown) {
   const { status, message } = ERROR_RESPONSES[type];
   const apiRes: ApiResponse = { success: false, message, error: { status, details } };
   res.status(status).json(apiRes);
 }
 
-export function successResponse(res: Response, type: SuccessResponseType, data?: any) {
+export function successResponse(res: Response, type: SuccessResponseType, data?: unknown) {
   const { status, message } = SUCCESS_RESPONSES[type];
   const apiRes: ApiResponse = { success: true, message, data };
   res.status(status).json(apiRes);
