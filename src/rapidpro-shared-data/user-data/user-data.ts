@@ -28,14 +28,6 @@ type IUserDataEnv = z.infer<typeof ENV_SCHEMA>;
 export const userData = functions.https.onCall({ enforceAppCheck: true }, (request) => {
   // Validate request from app - handled by enforceAppCheck
 
-  // Ensure server has rapidpro url and api token
-  const { RAPIDPRO_URL, RAPIDPRO_API_TOKEN } = process.env;
-  if (!RAPIDPRO_URL) {
-    throw new HttpsError("failed-precondition", `[RAPIDPRO_URL] not configured on server`);
-  }
-  if (!RAPIDPRO_API_TOKEN) {
-    throw new HttpsError("failed-precondition", `[RAPIDPRO_API_TOKEN] not configured on server`);
-  }
   // Validate env
   const { data: envData, error: envError } = ENV_SCHEMA.safeParse(process.env);
   if (envError) {
@@ -77,7 +69,7 @@ async function getUserData(params: IUserDataRequestParams, env: IUserDataEnv) {
     return user;
   } catch (error) {
     functions.logger.error(error);
-    const { message } = error as Error;
+    const message = error instanceof Error ? error.message : String(error);
     throw new HttpsError("internal", `Rapidpro Server Error - ${message}`);
   }
 }
