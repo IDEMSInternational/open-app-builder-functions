@@ -14,7 +14,7 @@
     "shell": "npm run build && firebase functions:shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "firebase emulators:exec --only firestore,auth jest --project test"
+    "test": "firebase emulators:exec --only firestore,auth --project test \"jest"
   },
   "engines": {
     "node": "22"
