@@ -32,6 +32,12 @@ function createMockReqRes(requestOverrides: Partial<httpMocks.RequestOptions>) {
   return { req, res };
 }
 
+/**
+ * Run directly
+ * ```bash
+ * npm run test group-join
+ * ```
+ */
 describe("groupJoin HTTP Validation", () => {
   afterEach(() => {
     test.cleanup();
