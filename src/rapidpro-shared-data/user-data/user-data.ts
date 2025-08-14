@@ -31,8 +31,8 @@ export const userData = functions.https.onCall({ enforceAppCheck: true }, (reque
   // Validate env
   const { data: envData, error: envError } = ENV_SCHEMA.safeParse(process.env);
   if (envError) {
-    functions.logger.error("Param validation error:", envError.format());
-    throw new HttpsError("invalid-argument", "INVALID_PARAMS", envError.format());
+    functions.logger.error("Env validation error:", envError.format());
+    throw new HttpsError("internal", "SERVER_ENVIRONMENT_VARIABLES", envError.format());
   }
 
   // Validate params

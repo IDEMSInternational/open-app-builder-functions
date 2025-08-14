@@ -35,31 +35,11 @@ describe("userData callable function", () => {
     process.env = { ...VALID_ENV };
   });
 
-  it("throws if RAPIDPRO_URL is missing", async () => {
-    delete process.env.RAPIDPRO_URL;
-
-    await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
-    await expect(callUserData(VALID_PARAMS)).rejects.toMatchObject({
-      code: "failed-precondition",
-      message: "[RAPIDPRO_URL] not configured on server",
-    });
-  });
-
-  it("throws if RAPIDPRO_API_TOKEN is missing", async () => {
-    delete process.env.RAPIDPRO_API_TOKEN;
-
-    await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
-    await expect(callUserData(VALID_PARAMS)).rejects.toMatchObject({
-      code: "failed-precondition",
-      message: "[RAPIDPRO_API_TOKEN] not configured on server",
-    });
-  });
-
   it("throws if env vars are invalid", async () => {
     process.env.RAPIDPRO_URL = "not-a-url";
 
     await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
-    expect(functions.logger.error).toHaveBeenCalledWith("Param validation error:", expect.any(Object));
+    expect(functions.logger.error).toHaveBeenCalledWith("Env validation error:", expect.any(Object));
   });
 
   it("throws if params are invalid", async () => {
