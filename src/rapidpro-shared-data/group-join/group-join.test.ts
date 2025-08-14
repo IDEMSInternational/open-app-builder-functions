@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import functionsTest from "firebase-functions-test";
 import httpMocks from "node-mocks-http";
-import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../test/firestoreTestUtils";
+import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../../test/firestoreTestUtils";
 import { IGroupJoinRequestParams, groupJoin } from "./group-join";
 
 // Set the token for tests
@@ -32,6 +32,12 @@ function createMockReqRes(requestOverrides: Partial<httpMocks.RequestOptions>) {
   return { req, res };
 }
 
+/**
+ * Run directly (execute jest tests within emulator)
+ * ```bash
+ * npm run emulators:exec "jest group-join"
+ * ```
+ */
 describe("groupJoin HTTP Validation", () => {
   afterEach(() => {
     test.cleanup();

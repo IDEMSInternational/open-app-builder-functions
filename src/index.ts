@@ -21,4 +21,5 @@ import { setGlobalOptions } from "firebase-functions";
 setGlobalOptions({ maxInstances: 1 });
 
 // Exposed functions
-export * from "./rapidpro-shared-data/group-join";
+export * from "./rapidpro-shared-data/group-join/group-join";
+export * from "./rapidpro-shared-data/user-data/user-data";
