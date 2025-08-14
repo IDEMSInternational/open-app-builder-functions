@@ -9,7 +9,8 @@ global.fetch = jest.fn();
 functions.logger.error = jest.fn();
 
 // Helper to call the function
-const callUserData = async (data: any) => {
+const callUserData = async (data: Record<string, string>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return userData.run({ data } as any);
 };
 

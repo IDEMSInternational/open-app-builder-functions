@@ -9,3 +9,18 @@ It specifically enables rapidpro users to join the group via their rapidpro uuid
 ## TODOs
 
 - [ ] Consider skipping initial data sync and doing via user-data sync callable function?
+
+### Deploy
+
+Ensure environment variables populated
+
+```env
+SHARED_DATA_UPDATE_TOKEN=
+ALLOW_ORIGIN=
+```
+
+Deploy to firebase
+
+```bash
+firebase deploy --only functions:groupJoin
+```
