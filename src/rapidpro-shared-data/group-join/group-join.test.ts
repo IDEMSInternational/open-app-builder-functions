@@ -33,9 +33,9 @@ function createMockReqRes(requestOverrides: Partial<httpMocks.RequestOptions>) {
 }
 
 /**
- * Run directly
+ * Run directly (execute jest tests within emulator)
  * ```bash
- * npm run test group-join
+ * npm run emulators:exec "jest group-join"
  * ```
  */
 describe("groupJoin HTTP Validation", () => {

@@ -11,10 +11,12 @@
     "build:watch": "tsc --watch",
     "emulators:start": "firebase emulators:start --only functions,firestore --import=./test/seed-data --project test",
     "emulators:export": "firebase emulators:export ./test/seed-data --project test",
+    "emulators:exec": "firebase emulators:exec --only firestore,auth --project test",
     "shell": "npm run build && firebase functions:shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "firebase emulators:exec --only firestore,auth --project test \"jest"
+    "test": "npm run emulators:exec jest",
+    "test:watch": "npm run emulators:exec \"jest --watch\""
   },
   "engines": {
     "node": "22"
