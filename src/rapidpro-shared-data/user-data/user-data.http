@@ -1,0 +1,15 @@
+# VSCode Rest Client extension will display `Send Request` button below to
+# perform integration test when running emulators locally
+
+POST http://127.0.0.1:5001/test/us-central1/userData
+Content-Type: application/json
+Authorization: Bearer example_access_token_1234567890
+X-Firebase-AppCheck: fake-token
+
+# NOTE - userData is a callable function (triggered from app) not an 
+# onRequest function (triggered by http), so body needs to be wrapped in {"data":{...}}
+{
+  "data":{
+    "rapidpro_uuid":"00000000-0000-0000-0000-000000000000"
+  }
+}

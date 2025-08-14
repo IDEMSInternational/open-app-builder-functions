@@ -70,6 +70,10 @@ async function getUserData(params: IUserDataRequestParams, env: IUserDataEnv) {
 
     const data = (await response.json()) as IRapidProContactResponse;
     const [user] = data.results;
+    if (!user) {
+      // error will be caught and re-thrown as formatted error in next block
+      throw new Error("User not found");
+    }
     return user;
   } catch (error) {
     functions.logger.error(error);
@@ -78,7 +82,7 @@ async function getUserData(params: IUserDataRequestParams, env: IUserDataEnv) {
   }
 }
 
-const EXAMPLE_RESPONSE = {
+const EXAMPLE_RAPIDPRO_RESPONSE = {
   results: [
     {
       uuid: "700c4bd4-c7e5-4414-9ff2-2b1ff2571947",
@@ -98,4 +102,4 @@ const EXAMPLE_RESPONSE = {
     },
   ],
 };
-type IRapidProContactResponse = typeof EXAMPLE_RESPONSE;
+type IRapidProContactResponse = typeof EXAMPLE_RAPIDPRO_RESPONSE;
