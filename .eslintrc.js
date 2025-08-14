@@ -21,9 +21,11 @@ module.exports = {
   ignorePatterns: [
     "/lib/**/*", // Ignore built files.
     "/generated/**/*", // Ignore generated files.
+    "node_modules",
   ],
   plugins: ["@typescript-eslint", "import"],
   rules: {
     "import/no-unresolved": 0,
+    "prettier/prettier": "off",
   },
 };
