@@ -1,4 +1,4 @@
-import { userData } from "./user-data";
+import { rapidproUserData } from "./user-data";
 import { HttpsError } from "firebase-functions/https";
 import * as functions from "firebase-functions";
 
@@ -9,9 +9,9 @@ global.fetch = jest.fn();
 functions.logger.error = jest.fn();
 
 // Helper to call the function
-const callUserData = async (data: Record<string, string>) => {
+const invokeFn = async (data: Record<string, string>) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return userData.run({ data } as any);
+  return rapidproUserData.run({ data } as any);
 };
 
 /**
@@ -38,12 +38,12 @@ describe("userData callable function", () => {
   it("throws if env vars are invalid", async () => {
     process.env.RAPIDPRO_URL = "not-a-url";
 
-    await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
+    await expect(invokeFn(VALID_PARAMS)).rejects.toThrow(HttpsError);
     expect(functions.logger.error).toHaveBeenCalledWith("Env validation error:", expect.any(Object));
   });
 
   it("throws if params are invalid", async () => {
-    await expect(callUserData({ rapidpro_uuid: "not-a-uuid" })).rejects.toThrow(HttpsError);
+    await expect(invokeFn({ rapidpro_uuid: "not-a-uuid" })).rejects.toThrow(HttpsError);
     expect(functions.logger.error).toHaveBeenCalledWith("Param validation error:", expect.any(Object));
   });
 
@@ -60,7 +60,7 @@ describe("userData callable function", () => {
       }),
     });
 
-    const result = await callUserData(VALID_PARAMS);
+    const result = await invokeFn(VALID_PARAMS);
 
     expect(fetch).toHaveBeenCalledWith(
       `${VALID_ENV.RAPIDPRO_URL}/api/v2/contacts.json?uuid=${VALID_PARAMS.rapidpro_uuid}`,
@@ -84,7 +84,7 @@ describe("userData callable function", () => {
       json: async () => ({ results: [] }),
     });
 
-    await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
+    await expect(invokeFn(VALID_PARAMS)).rejects.toThrow(HttpsError);
     expect(functions.logger.error).toHaveBeenCalled();
   });
 
@@ -95,7 +95,7 @@ describe("userData callable function", () => {
       statusText: "Server Error",
     });
 
-    await expect(callUserData(VALID_PARAMS)).rejects.toThrow(HttpsError);
+    await expect(invokeFn(VALID_PARAMS)).rejects.toThrow(HttpsError);
     expect(functions.logger.error).toHaveBeenCalled();
   });
 });

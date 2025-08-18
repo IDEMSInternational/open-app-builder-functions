@@ -1,4 +1,4 @@
-## Rapidpro Shared Data - User Data
+## Rapidpro - User Data
 
 Callable function to allow app to retrieve rapidpro user data on demand
 
@@ -18,5 +18,5 @@ RAPIDPRO_API_TOKEN=
 Deploy to firebase
 
 ```bash
-firebase deploy --only functions:userData
+firebase deploy --only functions:rapidproUserData
 ```
