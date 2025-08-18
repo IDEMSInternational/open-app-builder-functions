@@ -24,7 +24,6 @@ export type IUserDataRequestParams = z.infer<typeof PARAMS_SCHEMA>;
 
 type IUserDataEnv = z.infer<typeof ENV_SCHEMA>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const rapidproUserData = functions.https.onCall({ enforceAppCheck: true }, (request) => {
   // Validate request from app - handled by enforceAppCheck
 
