@@ -25,29 +25,26 @@ export type IUserDataRequestParams = z.infer<typeof PARAMS_SCHEMA>;
 type IUserDataEnv = z.infer<typeof ENV_SCHEMA>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const rapidproUserData = functions.https.onCall(
-  { enforceAppCheck: true, cors: process.env.ALLOW_ORIGIN || "*" },
-  (request) => {
-    // Validate request from app - handled by enforceAppCheck
+export const rapidproUserData = functions.https.onCall({ enforceAppCheck: true }, (request) => {
+  // Validate request from app - handled by enforceAppCheck
 
-    // Validate env
-    const { data: envData, error: envError } = ENV_SCHEMA.safeParse(process.env);
-    if (envError) {
-      functions.logger.error("Env validation error:", envError.format());
-      throw new HttpsError("internal", "SERVER_ENVIRONMENT_VARIABLES", envError.format());
-    }
+  // Validate env
+  const { data: envData, error: envError } = ENV_SCHEMA.safeParse(process.env);
+  if (envError) {
+    functions.logger.error("Env validation error:", envError.format());
+    throw new HttpsError("internal", "SERVER_ENVIRONMENT_VARIABLES", envError.format());
+  }
 
-    // Validate params
-    const { data: paramsData, error: paramsError } = PARAMS_SCHEMA.safeParse(request.data);
-    if (paramsError) {
-      functions.logger.error("Param validation error:", paramsError.format());
-      throw new HttpsError("invalid-argument", "INVALID_PARAMS", paramsError.format());
-    }
+  // Validate params
+  const { data: paramsData, error: paramsError } = PARAMS_SCHEMA.safeParse(request.data);
+  if (paramsError) {
+    functions.logger.error("Param validation error:", paramsError.format());
+    throw new HttpsError("invalid-argument", "INVALID_PARAMS", paramsError.format());
+  }
 
-    // Process request
-    return getUserData(paramsData, envData);
-  },
-);
+  // Process request
+  return getUserData(paramsData, envData);
+});
 
 async function getUserData(params: IUserDataRequestParams, env: IUserDataEnv) {
   const { RAPIDPRO_API_TOKEN, RAPIDPRO_URL } = env;
