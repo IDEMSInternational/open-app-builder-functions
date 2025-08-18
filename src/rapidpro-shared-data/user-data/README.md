@@ -18,5 +18,5 @@ RAPIDPRO_API_TOKEN=
 Deploy to firebase
 
 ```bash
-firebase deploy --only functions:userData
+firebase deploy --only functions:rapidproUserData
 ```
