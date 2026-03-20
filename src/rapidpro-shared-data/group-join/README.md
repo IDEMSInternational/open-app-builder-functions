@@ -26,7 +26,7 @@ firebase deploy --only functions:groupJoin
 ```
 
 ### Cross-Project Proxy
-If you need `groupJoin` available from a second Firebase project, deploy `groupJoinProxy` to that second project. This allows for a parent app to add parents to a shared group for a facilitator app, via invoking a fucntion within the parent app's own project.
+If you need `groupJoin` available from a second Firebase project, deploy `groupJoinProxy` to that second project. This allows for a parent app to add parents to a shared group for a facilitator app, via invoking a function within the parent app's own project.
 
 Set `GROUP_JOIN_REMOTE_URL` in the second project's environment variables to the HTTPS endpoint of `groupJoin` deployed in the first project.
 

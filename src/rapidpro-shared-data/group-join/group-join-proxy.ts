@@ -41,14 +41,19 @@ async function forwardResponse(response: Response, upstreamResponse: globalThis.
     }
 
     const contentType = upstreamResponse.headers.get("content-type") || "";
-    if (contentType.includes("application/json")) {
-      response.json(text ? JSON.parse(text) : undefined);
+    const looksLikeJson = contentType.includes("application/json") || contentType.includes("+json");
+    if (looksLikeJson) {
+      // Forward as text instead of parsing/re-stringifying.
+      // This preserves the upstream body exactly and avoids crashes on invalid JSON.
+      if (contentType) response.set("Content-Type", contentType);
+      response.send(text);
       return;
     }
 
     response.send(text);
-  } catch {
-    // If body parsing fails, still return the status code we got.
+  } catch (error) {
+    // If body reading fails, still return the status code we got.
+    functions.logger.error("Failed to process upstream response body:", { error });
     response.send("");
   }
 }
@@ -73,8 +78,7 @@ export const groupJoinProxy = functions.https.onRequest(async (request, response
   // Use the proxy project's env token to authenticate to the upstream project.
   upstreamHeaders.Authorization = `Bearer ${envData.SHARED_DATA_UPDATE_TOKEN}`;
 
-  const contentType = request.get("Content-Type") || "application/json";
-  upstreamHeaders["Content-Type"] = contentType;
+  upstreamHeaders["Content-Type"] = "application/json";
 
   let upstreamBody: string | undefined;
   if (request.body !== undefined) {
