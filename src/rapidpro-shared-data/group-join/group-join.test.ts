@@ -264,10 +264,25 @@ describe("groupJoinProxy forwarding", () => {
     (globalThis as any).fetch = fetchMock;
     process.env.GROUP_JOIN_REMOTE_URL = TEST_PROXY_URL;
 
-    const { req, res } = createMockReqRes({ method: "OPTIONS", body: undefined, headers: { authorization: undefined } });
+    const { req, res } = createMockReqRes({ method: "POST", body: { example: "data" }, headers: { authorization: undefined } });
     await groupJoinProxy(req, res);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toEqual(204);
+  });
+
+  it("handles CORS preflight with x-firebase-appcheck allowed", async () => {
+    const { req, res } = createMockReqRes({
+      method: "OPTIONS",
+      headers: { "x-firebase-appcheck": "appcheck-test" },
+    });
+
+    // The proxy should answer preflight without forwarding.
+    await groupJoinProxy(req, res);
+
+    expect(res.statusCode).toEqual(204);
+
+    // node-mocks-http stores header names in lower-case
+    expect(res.getHeader("access-control-allow-headers")).toContain("x-firebase-appcheck");
   });
 });

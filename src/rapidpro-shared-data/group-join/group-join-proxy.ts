@@ -71,6 +71,18 @@ export const groupJoinProxy = functions.https.onRequest(async (request, response
     return errorResponse(response, "SERVER_MISCONFIGURATION", "Missing/invalid proxy env vars");
   }
 
+  // Handle CORS preflight locally.
+  // Clients using Firebase App Check will send `x-firebase-appcheck` and browsers require it to be present
+  // in `Access-Control-Allow-Headers` or the request will be blocked before it reaches our upstream call.
+  if (request.method === "OPTIONS") {
+    response.set("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN || "");
+    response.set("Access-Control-Allow-Methods", "POST");
+    response.set("Access-Control-Allow-Headers", "Authorization,Content-Type,x-firebase-appcheck");
+    response.set("Access-Control-Max-Age", "3600");
+    response.status(204).send("");
+    return;
+  }
+
   const upstreamUrl = envData.GROUP_JOIN_REMOTE_URL;
 
   // Only forward the most relevant headers to keep behavior predictable.
