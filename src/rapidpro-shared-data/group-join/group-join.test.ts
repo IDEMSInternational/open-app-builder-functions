@@ -250,6 +250,47 @@ describe("groupJoinProxy forwarding", () => {
     expect(res._getJSONData()).toEqual(upstreamJson);
   });
 
+  it("unwraps Firebase callable envelope { data: ... }", async () => {
+    const upstreamJson = {
+      success: true,
+      message: "User added to group",
+      data: { groupId: "mock_group_id", userId: "1d3ea366-cfb9-4640-87e4-74e160ab7220", totalMembers: 2 },
+    };
+
+    const fetchMock = jest.fn().mockResolvedValue({
+      status: 201,
+      headers: {
+        get: (name: string) => {
+          if (name.toLowerCase() === "content-type") return "application/json; charset=utf-8";
+          return null;
+        },
+      },
+      json: async () => upstreamJson,
+      text: async () => JSON.stringify(upstreamJson),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).fetch = fetchMock;
+    process.env.GROUP_JOIN_REMOTE_URL = TEST_PROXY_URL;
+
+    const body: IGroupJoinRequestParams = {
+      access_code: "C4F2",
+      rapidpro_uuid: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
+      rapidpro_fields: { name: "Cynthia" },
+    };
+
+    // Simulate `httpsCallable('groupJoinProxy')` sending { data: ... }
+    const { req, res } = createMockReqRes({ body: { data: body }, headers: { authorization: undefined } });
+    await groupJoinProxy(req, res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [, calledOptions] = fetchMock.mock.calls[0];
+    expect(calledOptions.headers.Authorization).toEqual(`Bearer ${TEST_TOKEN}`);
+    expect(calledOptions.body).toEqual(JSON.stringify(body));
+    expect(res.statusCode).toEqual(201);
+    expect(res._getJSONData()).toEqual(upstreamJson);
+  });
+
   it("relays upstream 204 responses", async () => {
     const fetchMock = jest.fn().mockResolvedValue({
       status: 204,

@@ -94,7 +94,28 @@ export const groupJoinProxy = functions.https.onRequest(async (request, response
 
   let upstreamBody: string | undefined;
   if (request.body !== undefined) {
-    upstreamBody = typeof request.body === "string" ? request.body : JSON.stringify(request.body);
+    // If the client is using Firebase callable functions (`httpsCallable`), the payload arrives as:
+    //   { data: <originalData> }
+    // In some environments, `request.body` can even be a JSON string.
+    const rawBody = request.body as unknown;
+
+    let decodedBody: unknown = rawBody;
+    if (typeof rawBody === "string") {
+      try {
+        decodedBody = JSON.parse(rawBody);
+      } catch {
+        // Keep as-is if it isn't JSON.
+      }
+    }
+
+    let bodyToForward: unknown = decodedBody;
+    if (bodyToForward && typeof bodyToForward === "object" && "data" in bodyToForward) {
+      bodyToForward = (bodyToForward as { data?: unknown }).data;
+    }
+
+    upstreamBody = typeof bodyToForward === "string" ? bodyToForward : JSON.stringify(bodyToForward);
+  } else {
+    // No body to forward.
   }
 
   try {
