@@ -3,10 +3,12 @@ import functionsTest from "firebase-functions-test";
 import httpMocks from "node-mocks-http";
 import { clearFirestore, getFirestoreEmulator, seedFirestore } from "../../../test/firestoreTestUtils";
 import { IGroupJoinRequestParams, groupJoin } from "./group-join";
+import { groupJoinProxy } from "./group-join-proxy";
 
 // Set the token for tests
 const TEST_TOKEN = "test-secret-token";
 process.env.SHARED_DATA_UPDATE_TOKEN = TEST_TOKEN;
+process.env.GROUP_JOIN_REMOTE_URL = "https://example.com/groupJoin";
 
 // Initialize the test environment
 const test = functionsTest();
@@ -190,5 +192,82 @@ describe("groupJoin Firestore", () => {
         details: "User group not found",
       },
     });
+  });
+});
+
+describe("groupJoinProxy forwarding", () => {
+  const TEST_PROXY_URL = "https://remote.example/functions/groupJoin";
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    // Ensure other tests (or future additions) don't accidentally use the mocked fetch.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).fetch = undefined;
+  });
+
+  it("forwards the request and relays upstream JSON", async () => {
+    const upstreamJson = {
+      success: true,
+      message: "User added to group",
+      data: { groupId: "mock_group_id", userId: "1d3ea366-cfb9-4640-87e4-74e160ab7220", totalMembers: 2 },
+    };
+
+    const fetchMock = jest.fn().mockResolvedValue({
+      status: 201,
+      headers: {
+        get: (name: string) => {
+          if (name.toLowerCase() === "content-type") return "application/json; charset=utf-8";
+          return null;
+        },
+      },
+      json: async () => upstreamJson,
+      text: async () => JSON.stringify(upstreamJson),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).fetch = fetchMock;
+    process.env.GROUP_JOIN_REMOTE_URL = TEST_PROXY_URL;
+
+    const body: IGroupJoinRequestParams = {
+      access_code: "C4F2",
+      rapidpro_uuid: "1d3ea366-cfb9-4640-87e4-74e160ab7220",
+      rapidpro_fields: { name: "Cynthia" },
+    };
+
+    // Proxy authenticates to the upstream using its env token; callers do not need to provide Authorization.
+    const { req, res } = createMockReqRes({ body, headers: { authorization: undefined } });
+    await groupJoinProxy(req, res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [calledUrl, calledOptions] = fetchMock.mock.calls[0];
+    expect(calledUrl).toEqual(TEST_PROXY_URL);
+    expect(calledOptions.method).toEqual("POST");
+    expect(calledOptions.headers.Authorization).toEqual(`Bearer ${TEST_TOKEN}`);
+    expect(calledOptions.headers["Content-Type"]).toEqual("application/json");
+    expect(calledOptions.body).toEqual(JSON.stringify(body));
+
+    expect(res.statusCode).toEqual(201);
+    expect(res._getJSONData()).toEqual(upstreamJson);
+  });
+
+  it("relays upstream 204 responses", async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      status: 204,
+      headers: { get: () => null },
+      json: async () => {
+        throw new Error("should not parse json for 204");
+      },
+      text: async () => "",
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).fetch = fetchMock;
+    process.env.GROUP_JOIN_REMOTE_URL = TEST_PROXY_URL;
+
+    const { req, res } = createMockReqRes({ method: "OPTIONS", body: undefined, headers: { authorization: undefined } });
+    await groupJoinProxy(req, res);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toEqual(204);
   });
 });
