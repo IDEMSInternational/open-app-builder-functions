@@ -16,11 +16,11 @@ if (admin.apps.length === 0) {
 const PARAMS_SCHEMA = z.object({
   access_code: z.string(),
   rapidpro_uuid: z.string().uuid().optional(),
-  app_parent_id: z.string().optional(),
-  app_auth_parent_id: z.string().optional(),
+  app_user_id: z.string().optional(),
+  auth_user_id: z.string().optional(),
   rapidpro_fields: z.record(z.any()),
 }).refine(
-  (data) => !!(data.rapidpro_uuid || data.app_auth_parent_id || data.app_parent_id),
+  (data) => !!(data.rapidpro_uuid || data.auth_user_id || data.app_user_id),
   {
     message: "At least one ID is required",
     path: [],
@@ -78,8 +78,8 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
     access_code,
     rapidpro_fields,
     rapidpro_uuid,
-    app_auth_parent_id,
-    app_parent_id,
+    auth_user_id,
+    app_user_id,
   } = params;
 
   const ref = admin.firestore().collection("shared_data");
@@ -103,8 +103,8 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
   const parents = data.parentGroupData?.parents;
   const idInfo = getPriorityParentId({
     rapidpro_uuid,
-    app_auth_parent_id,
-    app_parent_id,
+    auth_user_id,
+    app_user_id,
   });
   const userId = idInfo.value;
 
@@ -121,8 +121,8 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
   parents.push({
     rapidpro_fields,
     ...(rapidpro_uuid ? { rapidpro_uuid } : {}),
-    ...(app_auth_parent_id ? { app_auth_parent_id } : {}),
-    ...(app_parent_id ? { app_parent_id } : {}),
+    ...(auth_user_id ? { auth_user_id } : {}),
+    ...(app_user_id ? { app_user_id } : {}),
   });
   data.parentGroupData.parents = parents;
   try {
@@ -161,14 +161,14 @@ function sensitiveStringIsEqual(a: string, b: string) {
  */
 function getPriorityParentId(params: {
   rapidpro_uuid?: string;
-  app_auth_parent_id?: string;
-  app_parent_id?: string;
+  auth_user_id?: string;
+  app_user_id?: string;
 }) {
   if (params.rapidpro_uuid) {
     return { key: "rapidpro_uuid" as const, value: params.rapidpro_uuid };
   }
-  if (params.app_auth_parent_id) {
-    return { key: "app_auth_parent_id" as const, value: params.app_auth_parent_id };
+  if (params.auth_user_id) {
+    return { key: "auth_user_id" as const, value: params.auth_user_id };
   }
-  return { key: "app_parent_id" as const, value: params.app_parent_id as string };
+  return { key: "app_user_id" as const, value: params.app_user_id as string };
 }
