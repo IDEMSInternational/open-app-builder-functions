@@ -97,7 +97,6 @@ describe("groupJoin HTTP Validation", () => {
         details: {
           _errors: [],
           access_code: { _errors: ["Required"] },
-          rapidpro_uuid: { _errors: ["Required"] },
           rapidpro_fields: { _errors: ["Required"] },
         },
       },
