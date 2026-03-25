@@ -15,9 +15,17 @@ if (admin.apps.length === 0) {
 /** Request param schema and validation */
 const PARAMS_SCHEMA = z.object({
   access_code: z.string(),
-  rapidpro_uuid: z.string().uuid(),
+  rapidpro_uuid: z.string().uuid().optional(),
+  app_user_id: z.string().optional(),
+  auth_user_id: z.string().optional(),
   rapidpro_fields: z.record(z.any()),
-});
+}).refine(
+  (data) => !!(data.rapidpro_uuid || data.auth_user_id || data.app_user_id),
+  {
+    message: "At least one ID is required",
+    path: [],
+  },
+);
 
 // Generated type from schema validation above
 export type IGroupJoinRequestParams = z.infer<typeof PARAMS_SCHEMA>;
@@ -66,7 +74,13 @@ export type IFirestoreParentGroup = {
 
 /** Store reference to rapidpro parent within parentGroup data **/
 async function addParentToGroup(params: IGroupJoinRequestParams, response: Response) {
-  const { access_code, rapidpro_fields, rapidpro_uuid } = params;
+  const {
+    access_code,
+    rapidpro_fields,
+    rapidpro_uuid,
+    auth_user_id,
+    app_user_id,
+  } = params;
 
   const ref = admin.firestore().collection("shared_data");
   const { size, docs } = await ref.where("access_code", "==", access_code).get();
@@ -87,23 +101,34 @@ async function addParentToGroup(params: IGroupJoinRequestParams, response: Respo
     return errorResponse(response, "DATA_ERROR", msg);
   }
   const parents = data.parentGroupData?.parents;
+  const idInfo = getPriorityParentId({
+    rapidpro_uuid,
+    auth_user_id,
+    app_user_id,
+  });
+  const userId = idInfo.value;
 
   // Return success if user already member
-  const existingUser = parents.find((p) => p.rapidpro_uuid === rapidpro_uuid);
+  const existingUser = parents.find((p) => p[idInfo.key] === userId);
   if (existingUser) {
     return successResponse(response, "USER_EXISTING", {
-      userId: rapidpro_uuid,
+      userId,
       groupId: groupDoc.id,
       totalMembers: parents.length,
     });
   }
   // Add user to group and update
-  parents.push({ rapidpro_uuid, rapidpro_fields });
+  parents.push({
+    rapidpro_fields,
+    ...(rapidpro_uuid ? { rapidpro_uuid } : {}),
+    ...(auth_user_id ? { auth_user_id } : {}),
+    ...(app_user_id ? { app_user_id } : {}),
+  });
   data.parentGroupData.parents = parents;
   try {
     await groupDoc.ref.update({ data });
     return successResponse(response, "USER_ADDED", {
-      userId: rapidpro_uuid,
+      userId,
       groupId: groupDoc.id,
       totalMembers: parents.length,
     });
@@ -125,4 +150,25 @@ function sensitiveStringIsEqual(a: string, b: string) {
   const bBuffer = Buffer.from(b, "utf8");
   if (aBuffer.length !== bBuffer.length) return false;
   return timingSafeEqual(aBuffer, bBuffer);
+}
+
+/**
+ * Determine the parent ID to use for the user based on the available options
+ * Order of priority is:
+ * 1. Rapidpro UUID (included in requests from RapidPro)
+ * 2. App Auth Parent ID (included in requests from app, if user is authenticated)
+ * 3. App Parent ID (included in all requests from app)
+ */
+function getPriorityParentId(params: {
+  rapidpro_uuid?: string;
+  auth_user_id?: string;
+  app_user_id?: string;
+}) {
+  if (params.rapidpro_uuid) {
+    return { key: "rapidpro_uuid" as const, value: params.rapidpro_uuid };
+  }
+  if (params.auth_user_id) {
+    return { key: "auth_user_id" as const, value: params.auth_user_id };
+  }
+  return { key: "app_user_id" as const, value: params.app_user_id as string };
 }

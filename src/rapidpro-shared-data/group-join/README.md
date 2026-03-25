@@ -4,6 +4,13 @@ This function is used to enable syncing data between rapidpro and app shared-dat
 
 It specifically enables rapidpro users to join the group via their rapidpro uuid, and sync contact data to shared
 
+## Interaction Pathways
+
+There are two ways to interact with this function (`groupJoin`):
+
+- From RapidPro: RapidPro calls the `groupJoin` HTTPS endpoint with an `access_code` plus the sender's `rapidpro_uuid` and `rapidpro_fields`. The function records the parent using the RapidPro UUID.
+- From an app: your application calls the same `groupJoin` HTTPS endpoint using an `access_code` plus an app identity (`auth_user_id` when authenticated, otherwise `app_user_id`). If the endpoint lives in a different Firebase project, call `groupJoinProxy` instead (it forwards the request to the upstream `groupJoin`).
+
 ![alt text](image.png)
 
 ## TODOs
