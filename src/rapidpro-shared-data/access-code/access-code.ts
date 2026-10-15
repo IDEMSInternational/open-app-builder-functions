@@ -27,10 +27,11 @@ export type IGenerateAccessCodeRequestParams = z.infer<typeof PARAMS_SCHEMA>;
 /**
  * Generate a unique access code for a shared parent group and save it to `shared_data/{shared_id}.access_code`.
  * Codes are checked against all existing `shared_data` docs, which app users cannot query directly.
+ *
+ * AppCheck is not enforced, as the function only allows group owners to update their own group's code,
+ * which they can already do directly via firestore rules.
  */
-export const generateAccessCode = functions.https.onCall({ enforceAppCheck: true }, async (request) => {
-  // Validate request from app - handled by enforceAppCheck
-
+export const generateAccessCode = functions.https.onCall(async (request) => {
   // Validate user
   const uid = request.auth?.uid;
   if (!uid) {

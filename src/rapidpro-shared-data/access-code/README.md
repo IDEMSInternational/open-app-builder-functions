@@ -4,7 +4,7 @@ Callable function to generate a unique access code for a shared parent group, us
 
 Codes are generated server-side as app users cannot query other users' `shared_data` docs to check for conflicts. Each candidate code is checked against existing `shared_data` docs, retrying up to 10 times before returning an error.
 
-Requests are validated using AppCheck, and the calling user must be the owner (`_created_by`) of the `shared_data` doc.
+Requests must come from an authenticated user who is the owner (`_created_by`) of the `shared_data` doc.
 
 ### Usage
 
