@@ -24,3 +24,4 @@ setGlobalOptions({ maxInstances: 1 });
 export * from "./rapidpro-shared-data/group-join/group-join";
 export * from "./rapidpro-shared-data/group-join/group-join-proxy";
 export * from "./rapidpro-shared-data/user-data/user-data";
+export * from "./rapidpro-shared-data/access-code/access-code";
